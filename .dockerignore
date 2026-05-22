@@ -1,0 +1,12 @@
+node_modules
+frontend/node_modules
+dist
+frontend/dist
+.git
+.github
+.markdownlint.json
+.gemini
+*.log
+npm-debug.log
+.env*
+C:\Users\*
