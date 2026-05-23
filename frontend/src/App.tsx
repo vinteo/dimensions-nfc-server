@@ -31,6 +31,7 @@ function App() {
   // Automatically open customiser modal when a tag is selected
   useEffect(() => {
     if (selectedTagId) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setIsCustomiserOpen(true);
     }
   }, [selectedTagId]);

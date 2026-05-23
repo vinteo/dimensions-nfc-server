@@ -11,7 +11,7 @@ import { hexToRgb } from '../helpers/color.js';
 let usbModule: any = null;
 try {
   usbModule = await import('usb');
-} catch (err) {
+} catch {
   // Native USB module could not be loaded (e.g. missing libusb in some environments).
   // We will log this and allow running in mock mode.
 }
@@ -282,7 +282,7 @@ export class NfcReaderService extends EventEmitter {
       await this.setPadColor(pad, r, g, b);
       await sleep(400);
       await this.setPadColor(pad, 0, 0, 0);
-    } catch (err: any) {
+    } catch {
       // Ignore background control errors
     }
   }
@@ -518,7 +518,7 @@ export class NfcReaderService extends EventEmitter {
     if (this.inEndpoint) {
       try {
         this.inEndpoint.stopPoll();
-      } catch (e) {
+      } catch {
         // Ignore error
       }
     }
@@ -526,7 +526,7 @@ export class NfcReaderService extends EventEmitter {
     if (this.activeInterface) {
       try {
         await this.activeInterface.release(true);
-      } catch (e) {
+      } catch {
         // Ignore error
       }
     }
@@ -534,7 +534,7 @@ export class NfcReaderService extends EventEmitter {
     if (this.device) {
       try {
         this.device.close();
-      } catch (e) {
+      } catch {
         // Ignore error
       }
     }
