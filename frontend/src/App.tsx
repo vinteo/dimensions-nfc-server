@@ -11,7 +11,6 @@ import TagSimulator from './components/TagSimulator.tsx';
 import LightSimulator from './components/LightSimulator.tsx';
 import ActivityHistory from './components/ActivityHistory.tsx';
 import TagCustomiser from './components/TagCustomiser.tsx';
-import { Wrench } from 'lucide-react';
 
 function App() {
   // Application State
@@ -56,7 +55,7 @@ function App() {
   const [loading, setLoading] = useState(false);
 
   // Simulated Lights State
-  const [lightPad, setLightPad] = useState<number | 'all'>(1);
+  const [lightPads, setLightPads] = useState<number[]>([1]);
   const [lightColor, setLightColor] = useState('#a855f7'); // default Purple
   const [enableFlashing, setEnableFlashing] = useState(false);
   const [flashCount, setFlashCount] = useState(3);
@@ -123,13 +122,12 @@ function App() {
   };
 
   const handleApplyLight = () => {
-    const padsToApply = lightPad === 'all' ? [1, 2, 3] : [lightPad];
-
-    padsToApply.forEach((padNum) => {
+    lightPads.forEach((padNum) => {
       clearActiveFlashTimers(padNum);
 
       if (!enableFlashing) {
         setLedFlash((prev) => ({ ...prev, [padNum]: lightColor }));
+        setPhysicalLight(padNum, lightColor);
       } else {
         const timers: ReturnType<typeof setTimeout>[] = [];
 
@@ -158,21 +156,14 @@ function App() {
         activeFlashTimersRef.current[padNum] = timers;
       }
     });
-
-    if (!enableFlashing) {
-      setPhysicalLight(lightPad, lightColor);
-    }
   };
 
   const handleTurnOffLight = () => {
-    const padsToApply = lightPad === 'all' ? [1, 2, 3] : [lightPad];
-
-    padsToApply.forEach((padNum) => {
+    lightPads.forEach((padNum) => {
       clearActiveFlashTimers(padNum);
       setLedFlash((prev) => ({ ...prev, [padNum]: null }));
+      setPhysicalLight(padNum, null);
     });
-
-    setPhysicalLight(lightPad, null);
   };
 
   const triggerWakeFlash = async () => {
@@ -355,6 +346,7 @@ function App() {
               rippleActive={rippleActive}
               getCharacterName={getCharacterName}
               onSelectTag={setSelectedTagId}
+              onOpenCustomiser={() => setIsCustomiserOpen(true)}
             />
 
             <LedDiagnostics ledFlash={ledFlash} getColorName={getColorName} />
@@ -373,8 +365,8 @@ function App() {
             />
 
             <LightSimulator
-              lightPad={lightPad}
-              setLightPad={setLightPad}
+              lightPads={lightPads}
+              setLightPads={setLightPads}
               lightColor={lightColor}
               setLightColor={setLightColor}
               enableFlashing={enableFlashing}
@@ -387,34 +379,7 @@ function App() {
               handleTurnOffLight={handleTurnOffLight}
             />
 
-            {/* Tag Customiser trigger card */}
-            <div className="glass-panel rounded-2xl p-6 flex flex-col justify-between shadow-[0_15px_30px_rgba(0,0,0,0.25)] relative overflow-hidden">
-              {/* Glow highlight */}
-              <div
-                className="absolute top-0 right-0 w-32 h-32 blur-3xl rounded-full opacity-5 pointer-events-none transition-all duration-500"
-                style={{ backgroundColor: '#06b6d4' }}
-              />
-              <div className="flex justify-between items-center pb-3 border-b border-gray-900">
-                <div>
-                  <h3 className="text-base font-bold text-white flex items-center gap-2">
-                    <Wrench className="w-4 h-4 text-cyan-400" />
-                    Tag Customiser
-                  </h3>
-                  <p className="text-xs text-gray-400 font-light mt-0.5">
-                    Configure profiles, LED flashes, custom icons, and webhooks.
-                  </p>
-                </div>
-              </div>
-              <div className="mt-4 flex flex-col gap-3">
-                <button
-                  onClick={() => setIsCustomiserOpen(true)}
-                  className="w-full py-3 bg-gradient-to-r from-cyan-600 to-cyan-500 hover:from-cyan-500 hover:to-cyan-400 text-white rounded-xl text-xs font-black cursor-pointer shadow-lg hover:shadow-cyan-900/30 active:scale-[0.98] transition-all flex items-center justify-center gap-2 focus:outline-none"
-                >
-                  <Wrench className="w-4 h-4" />
-                  Open Tag Customiser
-                </button>
-              </div>
-            </div>
+
           </div>
         </div>
 
@@ -432,7 +397,10 @@ function App() {
       {/* Modal Tag Customiser */}
       <TagCustomiser
         isOpen={isCustomiserOpen}
-        onClose={() => setIsCustomiserOpen(false)}
+        onClose={() => {
+          setIsCustomiserOpen(false);
+          setSelectedTagId(null);
+        }}
         activeTags={activeTags}
         history={history}
         selectedTagId={selectedTagId}

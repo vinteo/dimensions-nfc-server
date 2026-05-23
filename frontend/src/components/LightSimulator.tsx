@@ -2,8 +2,8 @@ import { Sparkles, Trash2 } from 'lucide-react';
 import { COLOR_PRESETS } from '../constants.js';
 
 interface LightSimulatorProps {
-  lightPad: number | 'all';
-  setLightPad: (pad: number | 'all') => void;
+  lightPads: number[];
+  setLightPads: (pads: number[]) => void;
   lightColor: string;
   setLightColor: (color: string) => void;
   enableFlashing: boolean;
@@ -17,8 +17,8 @@ interface LightSimulatorProps {
 }
 
 export default function LightSimulator({
-  lightPad,
-  setLightPad,
+  lightPads,
+  setLightPads,
   lightColor,
   setLightColor,
   enableFlashing,
@@ -45,28 +45,36 @@ export default function LightSimulator({
       {/* Pad selector */}
       <div className="space-y-2">
         <label className="block text-[10px] font-bold uppercase tracking-wider text-gray-400">
-          Target Zone
+          Target Zones
         </label>
-        <div className="grid grid-cols-4 gap-1.5">
+        <div className="grid grid-cols-3 gap-1.5">
           {[
             { label: 'Pad 1', value: 1 },
             { label: 'Pad 2', value: 2 },
             { label: 'Pad 3', value: 3 },
-            { label: 'All Pads', value: 'all' },
-          ].map((p) => (
-            <button
-              key={p.label}
-              type="button"
-              onClick={() => setLightPad(p.value as number | 'all')}
-              className={`py-1.5 px-1 text-[10px] font-bold rounded-lg border transition-all text-center cursor-pointer ${
-                lightPad === p.value
-                  ? 'bg-purple-950 border-purple-500 text-purple-200'
-                  : 'bg-gray-900 border-gray-800 text-gray-400 hover:border-gray-700'
-              }`}
-            >
-              {p.label}
-            </button>
-          ))}
+          ].map((p) => {
+            const isSelected = lightPads.includes(p.value);
+            return (
+              <button
+                key={p.label}
+                type="button"
+                onClick={() => {
+                  if (isSelected) {
+                    setLightPads(lightPads.filter((val) => val !== p.value));
+                  } else {
+                    setLightPads([...lightPads, p.value]);
+                  }
+                }}
+                className={`py-1.5 px-1 text-[10px] font-bold rounded-lg border transition-all text-center cursor-pointer ${
+                  isSelected
+                    ? 'bg-purple-950 border-purple-500 text-purple-200 shadow-[0_0_10px_rgba(168,85,247,0.15)]'
+                    : 'bg-gray-900 border-gray-800 text-gray-400 hover:border-gray-700'
+                }`}
+              >
+                {p.label}
+              </button>
+            );
+          })}
         </div>
       </div>
 

@@ -10,6 +10,7 @@ interface PadVisualiserProps {
   rippleActive: Record<number, 'arrival' | 'departure' | null>;
   getCharacterName: (uid: string) => string;
   onSelectTag?: (cardId: string) => void;
+  onOpenCustomiser?: () => void;
 }
 
 export default function PadVisualiser({
@@ -21,6 +22,7 @@ export default function PadVisualiser({
   rippleActive,
   getCharacterName,
   onSelectTag,
+  onOpenCustomiser,
 }: PadVisualiserProps) {
   // Dynamically resolve custom Lucide icons or fall back to a Shield icon
   const renderTagIcon = (tag: ActiveTagInfo, className: string = "w-4 h-4") => {
@@ -107,7 +109,7 @@ export default function PadVisualiser({
                 ? 'border-purple-500 bg-purple-950/20'
                 : 'border-gray-800 bg-gray-950/30'
             } ${
-              !ledFlash[2] && activeTags[2] && activeTags[2].length > 0
+              ledFlash[2]
                 ? 'animate-pulse'
                 : 'hover:border-gray-700'
             }`}
@@ -194,7 +196,7 @@ export default function PadVisualiser({
                 ? 'border-purple-500 bg-purple-950/20 shadow-[inset_0_0_15px_rgba(168,85,247,0.15)]'
                 : 'border-gray-800 bg-gray-950/30'
             } ${
-              !ledFlash[1] && activeTags[1] && activeTags[1].length > 0
+              ledFlash[1]
                 ? 'animate-pulse'
                 : 'hover:border-gray-700'
             }`}
@@ -275,7 +277,7 @@ export default function PadVisualiser({
                 ? 'border-purple-500 bg-purple-950/20'
                 : 'border-gray-800 bg-gray-950/30'
             } ${
-              !ledFlash[3] && activeTags[3] && activeTags[3].length > 0
+              ledFlash[3]
                 ? 'animate-pulse'
                 : 'hover:border-gray-700'
             }`}
@@ -352,20 +354,33 @@ export default function PadVisualiser({
       </div>
 
       {/* Status Footer */}
-      <div className="border-t border-gray-900/60 pt-4 mt-4 flex flex-col sm:flex-row justify-between text-xs text-gray-500 gap-2 z-10">
-        <div>
-          Device Hardware:{' '}
-          <span className="font-semibold text-gray-400">
-            {status.connected ? 'Online' : 'Offline'}
-          </span>
-        </div>
-        {status.vendorId && status.productId && (
+      <div className="border-t border-gray-900/60 pt-4 mt-4 flex flex-col sm:flex-row justify-between items-center text-xs text-gray-550 gap-4 z-10">
+        <div className="flex flex-wrap gap-4 items-center">
           <div>
-            VID/PID:{' '}
-            <span className="font-mono text-gray-400 bg-gray-950 px-1.5 py-0.5 rounded">
-              {status.vendorId}:{status.productId}
+            Device Hardware:{' '}
+            <span className="font-semibold text-gray-400">
+              {status.connected ? 'Online' : 'Offline'}
             </span>
           </div>
+          {status.vendorId && status.productId && (
+            <div>
+              VID/PID:{' '}
+              <span className="font-mono text-gray-400 bg-gray-950 px-1.5 py-0.5 rounded">
+                {status.vendorId}:{status.productId}
+              </span>
+            </div>
+          )}
+        </div>
+
+        {onOpenCustomiser && (
+          <button
+            onClick={onOpenCustomiser}
+            className="flex items-center gap-1.5 px-3.5 py-1.5 bg-gradient-to-r from-cyan-600 to-cyan-500 hover:from-cyan-500 hover:to-cyan-400 text-white rounded-xl text-xs font-black transition-all shadow-[0_4px_12px_rgba(6,182,212,0.1)] hover:shadow-[0_4px_16px_rgba(6,182,212,0.2)] cursor-pointer active:scale-95 focus:outline-none"
+            title="Configure tag profiles and webhooks"
+          >
+            <LucideIcons.Wrench className="w-3.5 h-3.5" />
+            Open Tag Customiser
+          </button>
         )}
       </div>
     </div>

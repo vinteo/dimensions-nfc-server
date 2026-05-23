@@ -574,13 +574,24 @@ export default function TagCustomiser({
                               PNG upload
                             </button>
                           </div>
-
                           {iconType === 'lucide' ? (
                             <div className="space-y-2.5 w-full">
                               <div className="space-y-1">
-                                <span className="text-[9px] text-gray-500 font-bold uppercase tracking-wider block">
-                                  Icon Name (PascalCase)
-                                </span>
+                                <div className="flex justify-between items-center">
+                                  <span className="text-[9px] text-gray-550 font-bold uppercase tracking-wider block">
+                                    Icon Name (PascalCase)
+                                  </span>
+                                  <a
+                                    href="https://lucide.dev/icons"
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="text-[9px] text-cyan-500 hover:text-cyan-400 font-bold uppercase flex items-center gap-1 transition-colors"
+                                    title="Open Lucide icon library in a new tab"
+                                  >
+                                    Lucide Library
+                                    <LucideIcons.ExternalLink className="w-2.5 h-2.5" />
+                                  </a>
+                                </div>
                                 <input
                                   type="text"
                                   value={icon}
