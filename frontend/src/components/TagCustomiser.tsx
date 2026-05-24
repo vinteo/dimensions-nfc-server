@@ -136,11 +136,15 @@ export default function TagCustomiser({
   useEffect(() => {
     if (!selectedTagId) return;
 
+    let active = true;
+
     const fetchTagSettings = async () => {
       try {
         const response = await fetch(`/api/nfc/tags/${selectedTagId}`);
         if (!response.ok) throw new Error('Failed to fetch settings');
         const settings: TagSettings = await response.json();
+
+        if (!active) return;
 
         setName(settings.name);
         setArrivalColor(settings.arrivalColor);
@@ -153,6 +157,7 @@ export default function TagCustomiser({
           3: { arrival: '', arrivalPayload: '', departure: '', departurePayload: '' },
         });
       } catch (err: unknown) {
+        if (!active) return;
         console.error('Error fetching settings for tag:', err);
         // Reset to defaults
         setName(getCharacterName(selectedTagId) || selectedTagId);
@@ -169,6 +174,10 @@ export default function TagCustomiser({
     };
 
     fetchTagSettings();
+
+    return () => {
+      active = false;
+    };
   }, [selectedTagId, getCharacterName]);
 
   // Save Settings to Backend

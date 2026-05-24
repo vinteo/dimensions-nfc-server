@@ -62,11 +62,29 @@ jobs:
         run: npm run build
 
       - name: Install Frontend Dependencies
-        run: |
-          cd frontend
-          npm ci
+        working-directory: frontend
+        run: npm ci
 
       - name: Compile Frontend
-        run: |
-          cd frontend
-          npm run build
+        working-directory: frontend
+        run: npm run build
+
+      - name: Run Frontend UI Tests
+        working-directory: frontend
+        run: npm run test:ui:run
+
+      - name: Install Playwright Browsers
+        working-directory: frontend
+        run: npx playwright install --with-deps
+
+      - name: Run Frontend E2E Tests
+        working-directory: frontend
+        run: npm run test:e2e
+
+      - name: Upload Playwright Report
+        uses: actions/upload-artifact@v4
+        if: ${{ !cancelled() }}
+        with:
+          name: playwright-report
+          path: frontend/playwright-report/
+          retention-days: 30

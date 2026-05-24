@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import type { NfcStatus, ActiveTagInfo, HistoryEvent } from './types.ts';
 import { CHARACTER_PRESETS, COLOR_PRESETS } from './constants.ts';
 
@@ -310,10 +310,10 @@ function App() {
     }
   };
 
-  const getCharacterName = (uid: string) => {
+  const getCharacterName = useCallback((uid: string) => {
     const character = CHARACTER_PRESETS.find((c) => c.id.toUpperCase() === uid.toUpperCase());
     return character ? character.name : 'Unknown Toy';
-  };
+  }, []);
 
   const formatDate = (isoString: string) => {
     try {
