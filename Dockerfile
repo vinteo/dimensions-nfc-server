@@ -19,7 +19,7 @@ FROM node:22-alpine AS backend-builder
 WORKDIR /app
 
 # Install native build tools for compiling the 'usb' module via node-gyp on Alpine
-RUN apk add --no-cache python3 make g++ libusb-dev
+RUN apk add --no-cache python3 make g++ libusb-dev linux-headers eudev-dev
 
 # Copy dependencies manifest and lockfile
 COPY package*.json ./
@@ -43,13 +43,13 @@ ENV NODE_ENV=production
 ENV NFC__MODE=mock
 
 # Install native runtime dependencies for USB communication
-RUN apk add --no-cache libusb
+RUN apk add --no-cache libusb eudev-libs
 
 # Copy package manifests
 COPY package*.json ./
 
 # Install node-gyp compilation dependencies temporarily to build production packages, then clean up
-RUN apk add --no-cache --virtual .build-deps python3 make g++ libusb-dev \
+RUN apk add --no-cache --virtual .build-deps python3 make g++ libusb-dev linux-headers eudev-dev \
     && npm ci --omit=dev \
     && apk del .build-deps
 
