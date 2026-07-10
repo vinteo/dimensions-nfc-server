@@ -160,7 +160,11 @@ export const initNfcSubscriptions = () => {
 
     const db = Database.getInstance();
     const settings = db.getTagSettings(event.cardId);
-    const webhookUrl = settings.webhooks && settings.webhooks[pad] ? settings.webhooks[pad].arrival : '';
+    const defaultWebhooks = db.getDefaultWebhooks();
+    
+    const tagWebhook = settings.webhooks && settings.webhooks[pad];
+    const padDefault = defaultWebhooks[pad];
+    const webhookUrl = (tagWebhook && tagWebhook.arrival) || (padDefault && padDefault.arrival) || '';
 
     const eventItem: EnrichedHistoryEvent = {
       id: `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
@@ -208,7 +212,7 @@ export const initNfcSubscriptions = () => {
     });
 
     // Asynchronously dispatch webhook in background
-    const arrivalPayload = settings.webhooks && settings.webhooks[pad] ? settings.webhooks[pad].arrivalPayload : undefined;
+    const arrivalPayload = (tagWebhook && tagWebhook.arrival) ? tagWebhook.arrivalPayload : (padDefault ? padDefault.arrivalPayload : undefined);
     if (webhookUrl) {
       dispatchWebhook(eventItem.id, webhookUrl, {
         tagId: event.cardId,
@@ -225,7 +229,11 @@ export const initNfcSubscriptions = () => {
 
     const db = Database.getInstance();
     const settings = db.getTagSettings(event.cardId);
-    const webhookUrl = settings.webhooks && settings.webhooks[pad] ? settings.webhooks[pad].departure : '';
+    const defaultWebhooks = db.getDefaultWebhooks();
+    
+    const tagWebhook = settings.webhooks && settings.webhooks[pad];
+    const padDefault = defaultWebhooks[pad];
+    const webhookUrl = (tagWebhook && tagWebhook.departure) || (padDefault && padDefault.departure) || '';
 
     const eventItem: EnrichedHistoryEvent = {
       id: `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
@@ -261,7 +269,7 @@ export const initNfcSubscriptions = () => {
     });
 
     // Asynchronously dispatch webhook in background
-    const departurePayload = settings.webhooks && settings.webhooks[pad] ? settings.webhooks[pad].departurePayload : undefined;
+    const departurePayload = (tagWebhook && tagWebhook.departure) ? tagWebhook.departurePayload : (padDefault ? padDefault.departurePayload : undefined);
     if (webhookUrl) {
       dispatchWebhook(eventItem.id, webhookUrl, {
         tagId: event.cardId,

@@ -1,11 +1,12 @@
-import { Radio, Cpu } from 'lucide-react';
+import { Radio, Cpu, Settings } from 'lucide-react';
 import type { NfcStatus } from '../types.js';
 
 interface HeaderProps {
   status: NfcStatus;
+  onOpenDefaultWebhooks: () => void;
 }
 
-export default function Header({ status }: HeaderProps) {
+export default function Header({ status, onOpenDefaultWebhooks }: HeaderProps) {
   return (
     <header className="flex flex-col md:flex-row md:items-center md:justify-between pb-6 border-b border-gray-800 gap-4">
       <div className="space-y-1">
@@ -34,6 +35,17 @@ export default function Header({ status }: HeaderProps) {
           <Cpu className="w-3.5 h-3.5" />
           Mode: {status.mode.toUpperCase()} ({status.connected ? 'Connected' : 'Offline'})
         </div>
+
+        {/* Default Webhooks Config Button */}
+        <button
+          type="button"
+          onClick={onOpenDefaultWebhooks}
+          className="flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-semibold glass-panel text-cyan-400 border-cyan-900 hover:bg-cyan-950/20 transition-all cursor-pointer focus:outline-none"
+          title="Configure default webhook settings"
+        >
+          <Settings className="w-3.5 h-3.5" />
+          Default Webhooks
+        </button>
       </div>
     </header>
   );

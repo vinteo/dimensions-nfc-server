@@ -11,6 +11,7 @@ import TagSimulator from './components/TagSimulator.tsx';
 import LightSimulator from './components/LightSimulator.tsx';
 import ActivityHistory from './components/ActivityHistory.tsx';
 import TagCustomiser from './components/TagCustomiser.tsx';
+import DefaultWebhooksModal from './components/DefaultWebhooksModal.tsx';
 
 function App() {
   // Application State
@@ -26,6 +27,7 @@ function App() {
   const [successMsg, setSuccessMsg] = useState<string | null>(null);
   const [selectedTagId, setSelectedTagId] = useState<string | null>(null);
   const [isCustomiserOpen, setIsCustomiserOpen] = useState(false);
+  const [isDefaultWebhooksOpen, setIsDefaultWebhooksOpen] = useState(false);
 
   // Automatically open customiser modal when a tag is selected
   useEffect(() => {
@@ -328,7 +330,7 @@ function App() {
     <div className="min-h-screen bg-[#07080d] bg-[radial-gradient(ellipse_80%_80%_at_50%_-20%,rgba(20,30,55,0.6),rgba(0,0,0,0))] text-gray-200 py-8 px-4 sm:px-6 lg:px-8">
       <div className="max-w-7xl mx-auto space-y-8">
         {/* Header */}
-        <Header status={status} />
+        <Header status={status} onOpenDefaultWebhooks={() => setIsDefaultWebhooksOpen(true)} />
 
         {/* Global Notifications */}
         <Notifications errorMsg={errorMsg} successMsg={successMsg} />
@@ -406,6 +408,14 @@ function App() {
         selectedTagId={selectedTagId}
         setSelectedTagId={setSelectedTagId}
         getCharacterName={getCharacterName}
+        showSuccess={showSuccess}
+        showError={showError}
+      />
+
+      {/* Modal Default Webhooks */}
+      <DefaultWebhooksModal
+        isOpen={isDefaultWebhooksOpen}
+        onClose={() => setIsDefaultWebhooksOpen(false)}
         showSuccess={showSuccess}
         showError={showError}
       />
