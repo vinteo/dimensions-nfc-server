@@ -183,6 +183,31 @@ router.post('/scan', (req: Request, res: Response) => {
   });
 });
 
+// Get default webhook settings
+router.get('/default-webhooks', (_req: Request, res: Response) => {
+  const db = Database.getInstance();
+  res.status(200).json(db.getDefaultWebhooks());
+});
+
+// Update default webhook settings
+router.post('/default-webhooks', (req: Request, res: Response) => {
+  const db = Database.getInstance();
+  try {
+    db.setDefaultWebhooks(req.body);
+    res.status(200).json({
+      success: true,
+      message: 'Default webhook settings updated successfully',
+      webhooks: db.getDefaultWebhooks(),
+    });
+  } catch (err: unknown) {
+    const errMsg = err instanceof Error ? err.message : String(err);
+    res.status(500).json({
+      error: 'Internal Error',
+      message: errMsg,
+    });
+  }
+});
+
 // Get all customized tag profiles
 router.get('/tags', (_req: Request, res: Response) => {
   const db = Database.getInstance();

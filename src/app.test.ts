@@ -191,4 +191,57 @@ describe('Dimensions NFC Server API', () => {
       expect(response.body.settings.iconType).toBe('custom');
     });
   });
+
+  describe('Default Webhooks API', () => {
+    it('should get default webhook settings', async () => {
+      const response = await request(app).get('/api/nfc/default-webhooks');
+      expect(response.status).toBe(200);
+      expect(response.body).toHaveProperty('1');
+      expect(response.body).toHaveProperty('2');
+      expect(response.body).toHaveProperty('3');
+      expect(response.body['1']).toHaveProperty('arrival');
+      expect(response.body['1']).toHaveProperty('departure');
+    });
+
+    it('should update default webhook settings and fetch them', async () => {
+      const newDefaults = {
+        1: { arrival: 'http://localhost:9999/default-arrival-1', departure: 'http://localhost:9999/default-departure-1' },
+        2: { arrival: 'http://localhost:9999/default-arrival-2', departure: '' },
+        3: { arrival: '', departure: '' }
+      };
+
+      const postResponse = await request(app)
+        .post('/api/nfc/default-webhooks')
+        .send(newDefaults);
+
+      expect(postResponse.status).toBe(200);
+      expect(postResponse.body.success).toBe(true);
+      expect(postResponse.body.webhooks['1'].arrival).toBe('http://localhost:9999/default-arrival-1');
+
+      const getResponse = await request(app).get('/api/nfc/default-webhooks');
+      expect(getResponse.status).toBe(200);
+      expect(getResponse.body['1'].arrival).toBe('http://localhost:9999/default-arrival-1');
+      expect(getResponse.body['2'].arrival).toBe('http://localhost:9999/default-arrival-2');
+    });
+
+    it('should resolve fallback webhook settings if card has no tag-specific webhook configured', async () => {
+      const defaults = {
+        3: { arrival: 'http://localhost:9999/fallback-arrival-3', arrivalPayload: 'test-payload', departure: '' }
+      };
+      await request(app).post('/api/nfc/default-webhooks').send(defaults);
+
+      const mockScan = {
+        cardId: 'card-fallback-999',
+        pad: 3,
+        direction: 'arrival'
+      };
+      await request(app).post('/api/nfc/mock').send(mockScan);
+
+      const stateResponse = await request(app).get('/api/nfc/state');
+      expect(stateResponse.status).toBe(200);
+      const scannedEvent = stateResponse.body.history.find((h: { cardId: string; webhookUrl?: string }) => h.cardId === 'CARD-FALLBACK-999');
+      expect(scannedEvent).toBeDefined();
+      expect(scannedEvent.webhookUrl).toBe('http://localhost:9999/fallback-arrival-3');
+    });
+  });
 });

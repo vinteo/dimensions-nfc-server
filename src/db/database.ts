@@ -82,6 +82,13 @@ export class Database {
         icon_type TEXT NOT NULL,
         webhooks TEXT NOT NULL
       );
+      CREATE TABLE IF NOT EXISTS default_webhooks (
+        pad_id INTEGER PRIMARY KEY,
+        arrival TEXT NOT NULL,
+        arrival_payload TEXT,
+        departure TEXT NOT NULL,
+        departure_payload TEXT
+      );
     `);
   }
 
@@ -270,5 +277,59 @@ export class Database {
     }
 
     return updated;
+  }
+
+  public getDefaultWebhooks(): Record<number, { arrival: string; arrivalPayload?: string; departure: string; departurePayload?: string }> {
+    const defaultWebhooks: Record<number, { arrival: string; arrivalPayload?: string; departure: string; departurePayload?: string }> = {
+      1: { arrival: '', arrivalPayload: '', departure: '', departurePayload: '' },
+      2: { arrival: '', arrivalPayload: '', departure: '', departurePayload: '' },
+      3: { arrival: '', arrivalPayload: '', departure: '', departurePayload: '' }
+    };
+    try {
+      const rows = this.sqliteDb.prepare('SELECT * FROM default_webhooks').all() as Array<{
+        pad_id: number;
+        arrival: string;
+        arrival_payload?: string;
+        departure: string;
+        departure_payload?: string;
+      }>;
+      for (const row of rows) {
+        if (defaultWebhooks[row.pad_id]) {
+          defaultWebhooks[row.pad_id] = {
+            arrival: row.arrival || '',
+            arrivalPayload: row.arrival_payload || '',
+            departure: row.departure || '',
+            departurePayload: row.departure_payload || '',
+          };
+        }
+      }
+    } catch (err) {
+      console.error('[DB] Error fetching default webhooks:', err);
+    }
+    return defaultWebhooks;
+  }
+
+  public setDefaultWebhooks(webhooks: Record<number, { arrival?: string; arrivalPayload?: string; departure?: string; departurePayload?: string }>) {
+    const stmt = this.sqliteDb.prepare(`
+      INSERT OR REPLACE INTO default_webhooks (pad_id, arrival, arrival_payload, departure, departure_payload)
+      VALUES (?, ?, ?, ?, ?)
+    `);
+
+    const transaction = this.sqliteDb.transaction((data: typeof webhooks) => {
+      for (const [padNumStr, entry] of Object.entries(data)) {
+        const padId = parseInt(padNumStr, 10);
+        if (padId === 1 || padId === 2 || padId === 3) {
+          stmt.run(
+            padId,
+            entry.arrival || '',
+            entry.arrivalPayload || '',
+            entry.departure || '',
+            entry.departurePayload || ''
+          );
+        }
+      }
+    });
+
+    transaction(webhooks);
   }
 }
